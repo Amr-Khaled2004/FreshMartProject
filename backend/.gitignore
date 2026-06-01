@@ -1,0 +1,5 @@
+.env
+email-outbox.json
+node_modules/
+server-out.log
+server-err.log

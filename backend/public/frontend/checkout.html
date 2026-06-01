@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FreshMart | Checkout</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">FreshMart</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart <span id="cart-count">0</span></a>
+      <a href="orders.html">Orders</a>
+      <a href="login.html" id="login-link">Login</a>
+      <a href="#" id="logout-link" class="hidden">Logout</a>
+    </nav>
+  </header>
+
+  <section class="form-section">
+    <form id="checkoutForm" class="form-box">
+      <h2>Checkout</h2>
+
+      <textarea id="address" placeholder="Delivery Address" required></textarea>
+
+      <select id="paymentMethod" required>
+        <option value="Cash on Delivery">Cash on Delivery</option>
+        <option value="Credit Card">Credit Card</option>
+      </select>
+
+      <div id="cardPaymentFields" class="card-payment hidden">
+        <input
+          type="text"
+          id="cardName"
+          placeholder="Name on Card"
+          autocomplete="cc-name"
+        />
+
+        <input
+          type="text"
+          id="cardNumber"
+          placeholder="Card Number"
+          inputmode="numeric"
+          autocomplete="cc-number"
+          maxlength="19"
+        />
+
+        <div class="card-row">
+          <input
+            type="text"
+            id="cardExpiry"
+            placeholder="MM/YY"
+            inputmode="numeric"
+            autocomplete="cc-exp"
+            maxlength="5"
+          />
+
+          <input
+            type="password"
+            id="cardCvv"
+            placeholder="CVV"
+            inputmode="numeric"
+            autocomplete="cc-csc"
+            maxlength="4"
+          />
+        </div>
+      </div>
+
+      <h3>Total: EGP <span id="checkout-total">0</span></h3>
+
+      <button type="submit" class="btn full">Place Order</button>
+
+      <p id="checkoutMessage" class="message"></p>
+    </form>
+  </section>
+
+  <script src="js/config.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>

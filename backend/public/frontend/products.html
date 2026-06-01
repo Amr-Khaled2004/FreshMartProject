@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FreshMart | Products</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">FreshMart</div>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="products.html" class="active">Products</a>
+      <a href="cart.html">Cart <span id="cart-count">0</span></a>
+      <a href="orders.html">Orders</a>
+      <a href="login.html" id="login-link">Login</a>
+      <a href="#" id="logout-link" class="hidden">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Products Section -->
+  <main>
+    <section class="section">
+      <h2>Our Products</h2>
+      <p class="section-subtitle">
+        Browse fresh supermarket products and add your favorite items to the cart.
+      </p>
+
+      <!-- Filters -->
+      <div class="filters">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Search products..." 
+        />
+
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+          <option value="Fruits">Fruits</option>
+          <option value="Vegetables">Vegetables</option>
+          <option value="Dairy">Dairy</option>
+          <option value="Bakery">Bakery</option>
+          <option value="Drinks">Drinks</option>
+          <option value="Snacks">Snacks</option>
+          <option value="Meat">Meat</option>
+          <option value="Cleaning">Cleaning</option>
+        </select>
+
+        <select id="sortFilter">
+          <option value="">Sort Products</option>
+          <option value="low-high">Price: Low to High</option>
+          <option value="high-low">Price: High to Low</option>
+          <option value="name-az">Name: A to Z</option>
+          <option value="name-za">Name: Z to A</option>
+        </select>
+      </div>
+
+      <!-- Products from backend will appear here -->
+      <div id="products-container" class="product-grid"></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 FreshMart. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/products.js"></script>
+</body>
+</html>

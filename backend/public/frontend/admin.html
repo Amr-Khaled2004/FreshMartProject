@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FreshMart | Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">FreshMart Admin</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="admin.html" class="active">Manage Products</a>
+      <a href="#admin-orders-section">Orders</a>
+      <a href="#" id="logout-link">Logout</a>
+    </nav>
+  </header>
+
+  <section class="section" id="admin-products-section">
+    <h2>Admin Dashboard</h2>
+
+    <div class="admin-grid">
+      <form id="productForm" class="form-box">
+        <h3>Add Product</h3>
+
+        <input type="text" id="productName" placeholder="Product Name" required />
+        <input type="text" id="productCategory" placeholder="Category" required />
+        <input type="number" id="productPrice" placeholder="Price" required />
+        <input type="number" id="productStock" placeholder="Stock Quantity" required />
+        <input type="text" id="productImage" placeholder="Image URL" required />
+        <textarea id="productDescription" placeholder="Description"></textarea>
+
+        <button type="submit" class="btn full">Add Product</button>
+
+        <p id="adminMessage" class="message"></p>
+      </form>
+
+      <div>
+        <h3>Products</h3>
+        <div id="admin-products"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section light" id="admin-orders-section">
+    <h2>All Orders</h2>
+    <div id="admin-orders"></div>
+  </section>
+
+  <div id="admin-toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FreshMart | Home</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">FreshMart</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart <span id="cart-count">0</span></a>
+      <a href="orders.html">Orders</a>
+      <a href="login.html" id="login-link">Login</a>
+      <a href="#" id="logout-link" class="hidden">Logout</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-label">Daily essentials, fresh picks</span>
+      <h1>Fresh Groceries Delivered Fast</h1>
+      <p>Shop fruits, vegetables, dairy, snacks, drinks, bakery items, and more.</p>
+      <div class="hero-actions">
+        <a href="products.html" class="btn">Shop Now</a>
+        <a href="products.html?category=Fruits" class="btn secondary">Fresh Fruits</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Shop by Category</h2>
+
+    <div class="category-grid">
+      <a href="products.html?category=Fruits" class="category-card">Fruits</a>
+      <a href="products.html?category=Vegetables" class="category-card">Vegetables</a>
+      <a href="products.html?category=Dairy" class="category-card">Dairy</a>
+      <a href="products.html?category=Bakery" class="category-card">Bakery</a>
+      <a href="products.html?category=Drinks" class="category-card">Drinks</a>
+      <a href="products.html?category=Snacks" class="category-card">Snacks</a>
+      <a href="products.html?category=Meat" class="category-card">Meat</a>
+      <a href="products.html?category=Cleaning" class="category-card">Cleaning</a>
+    </div>
+  </section>
+
+  <section class="section light">
+    <h2>Why Choose FreshMart?</h2>
+
+    <div class="features">
+      <div>
+        <h3>Fresh Products</h3>
+        <p>We provide high-quality supermarket items every day.</p>
+      </div>
+
+      <div>
+        <h3>Fast Delivery</h3>
+        <p>Your groceries arrive quickly and safely.</p>
+      </div>
+
+      <div>
+        <h3>Easy Shopping</h3>
+        <p>Browse, add to cart, and checkout in minutes.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 FreshMart. All rights reserved.</p>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
