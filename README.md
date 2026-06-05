@@ -38,3 +38,6 @@ FreshMartProject/
 │       └── frontend/
 │
 └── README.md
+For Admin credentials:-
+admin@freshmart.com
+admin123
