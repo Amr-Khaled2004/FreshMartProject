@@ -112,8 +112,16 @@ async function placeOrder(event) {
     return;
   }
 
-  const address = document.getElementById("address").value;
+  const streetName = document.getElementById("streetName").value.trim();
+  const apartmentNumber = document.getElementById("apartmentNumber").value.trim();
+  const contactPhone = document.getElementById("contactPhone").value.trim();
   const paymentMethod = document.getElementById("paymentMethod").value;
+  const phonePattern = /^[+\d][\d\s()-]{6,19}$/;
+
+  if (!streetName || !apartmentNumber || !phonePattern.test(contactPhone)) {
+    showMessage("checkoutMessage", "Please enter a street name, apartment number, and valid contact phone.", "error");
+    return;
+  }
 
   if (!validateCardPayment()) {
     return;
@@ -126,7 +134,9 @@ async function placeOrder(event) {
       price: item.price
     })),
     totalPrice: calculateCartTotal(),
-    address,
+    streetName,
+    apartmentNumber,
+    contactPhone,
     paymentMethod
   };
 

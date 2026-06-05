@@ -49,6 +49,18 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    streetName: {
+      type: String,
+      trim: true
+    },
+    apartmentNumber: {
+      type: String,
+      trim: true
+    },
+    contactPhone: {
+      type: String,
+      trim: true
+    },
     paymentMethod: {
       type: String,
       required: true

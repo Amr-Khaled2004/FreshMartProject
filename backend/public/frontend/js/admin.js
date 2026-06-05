@@ -213,7 +213,9 @@ async function loadAdminOrders() {
         <p>Customer: ${order.user && order.user.name ? order.user.name : "Unknown"}</p>
         <p>Email: ${order.user && order.user.email ? order.user.email : "Unknown"}</p>
         <p>Total: EGP ${order.totalPrice}</p>
-        <p>Address: ${order.address}</p>
+        <p>Street: ${order.streetName || order.address}</p>
+        <p>Apartment: ${order.apartmentNumber || "N/A"}</p>
+        <p>Phone: ${order.contactPhone || "N/A"}</p>
         <p>Status: <strong id="order-status-${order._id}">${order.status}</strong></p>
 
         <select id="order-select-${order._id}" onchange="updateOrderStatus('${order._id}', this.value)">
@@ -260,8 +262,10 @@ async function updateOrderStatus(orderId, status) {
       body: JSON.stringify({ status })
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      showAdminToast("Failed to update order status.", "error");
+      showAdminToast(data.message || "Failed to update order status.", "error");
       loadAdminOrders();
       return;
     }

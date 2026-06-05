@@ -22,9 +22,12 @@
     <form id="registerForm" class="form-box">
       <h2>Create Account</h2>
 
-      <input type="text" id="registerName" placeholder="Full Name" required />
+      <div class="card-row">
+        <input type="text" id="registerFirstName" placeholder="First Name" autocomplete="given-name" required />
+        <input type="text" id="registerLastName" placeholder="Last Name" autocomplete="family-name" required />
+      </div>
       <input type="email" id="registerEmail" placeholder="Email Address" required />
-      <input type="password" id="registerPassword" placeholder="Password" required />
+      <input type="password" id="registerPassword" placeholder="Password" minlength="6" required />
 
       <button type="submit" class="btn full">Register</button>
 

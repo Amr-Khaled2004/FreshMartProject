@@ -51,7 +51,9 @@ async function loadMyOrders() {
         <h3>Order ID: ${order._id}</h3>
         <p>Status: <strong>${order.status}</strong></p>
         <p>Total: EGP ${order.totalPrice}</p>
-        <p>Address: ${order.address}</p>
+        <p>Street: ${order.streetName || order.address}</p>
+        <p>Apartment: ${order.apartmentNumber || "N/A"}</p>
+        <p>Phone: ${order.contactPhone || "N/A"}</p>
 
         <h4>Items:</h4>
         <ul>

@@ -21,9 +21,21 @@ document.addEventListener("DOMContentLoaded", () => {
 async function registerUser(event) {
   event.preventDefault();
 
-  const name = document.getElementById("registerName").value;
+  const firstName = document.getElementById("registerFirstName").value.trim();
+  const lastName = document.getElementById("registerLastName").value.trim();
   const email = document.getElementById("registerEmail").value;
   const password = document.getElementById("registerPassword").value;
+  const namePattern = /^[A-Za-z][A-Za-z\s'-]*$/;
+
+  if (!namePattern.test(firstName) || !namePattern.test(lastName)) {
+    showMessage("registerMessage", "First and last name can only contain letters, spaces, apostrophes, or hyphens.", "error");
+    return;
+  }
+
+  if (password.length < 6 || !/\d/.test(password)) {
+    showMessage("registerMessage", "Password must be at least 6 characters and include a number.", "error");
+    return;
+  }
 
   try {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -31,7 +43,7 @@ async function registerUser(event) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ firstName, lastName, email, password })
     });
 
     const data = await response.json();

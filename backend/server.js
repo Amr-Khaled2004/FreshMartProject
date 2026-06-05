@@ -52,6 +52,22 @@ function createToken(userId) {
   });
 }
 
+function isValidNamePart(value) {
+  return typeof value === "string" && /^[A-Za-z][A-Za-z\s'-]*$/.test(value.trim());
+}
+
+function isValidPassword(value) {
+  return typeof value === "string" && value.length >= 6 && /\d/.test(value);
+}
+
+function isValidContactPhone(value) {
+  return typeof value === "string" && /^[+\d][\d\s()-]{6,19}$/.test(value.trim());
+}
+
+function formatAddress(streetName, apartmentNumber) {
+  return `${streetName}, Apt ${apartmentNumber}`;
+}
+
 function createMailTransporter() {
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     return null;
@@ -91,6 +107,9 @@ function formatOrderItemsForEmail(checkedItems) {
 
 function buildOrderEmail(user, order, checkedItems) {
   const orderItems = formatOrderItemsForEmail(checkedItems);
+  const streetName = order.streetName || order.address;
+  const apartmentNumber = order.apartmentNumber || "N/A";
+  const contactPhone = order.contactPhone || "N/A";
   const itemLines = orderItems.map((item) => {
     return `- ${item.name} x ${item.quantity} = EGP ${item.subtotal}`;
   }).join("\n");
@@ -114,7 +133,9 @@ function buildOrderEmail(user, order, checkedItems) {
       `Order ID: ${order.id}`,
       `Status: ${order.status}`,
       `Payment: ${order.paymentMethod}`,
-      `Address: ${order.address}`,
+      `Street: ${streetName}`,
+      `Apartment: ${apartmentNumber}`,
+      `Phone: ${contactPhone}`,
       "",
       "Items:",
       itemLines,
@@ -130,7 +151,9 @@ function buildOrderEmail(user, order, checkedItems) {
         <p><strong>Order ID:</strong> ${order.id}</p>
         <p><strong>Status:</strong> ${order.status}</p>
         <p><strong>Payment:</strong> ${order.paymentMethod}</p>
-        <p><strong>Address:</strong> ${order.address}</p>
+        <p><strong>Street:</strong> ${streetName}</p>
+        <p><strong>Apartment:</strong> ${apartmentNumber}</p>
+        <p><strong>Phone:</strong> ${contactPhone}</p>
         <table style="width: 100%; max-width: 680px; border-collapse: collapse; margin-top: 18px;">
           <thead>
             <tr style="background: #e8f7ef;">
@@ -195,6 +218,8 @@ async function buildOrderResponse(order, options = {}) {
           id: user.id,
           _id: user.id,
           name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
           email: user.email
         }
       : null;
@@ -259,7 +284,19 @@ app.get("/", (req, res) => {
 // Register
 app.post("/api/auth/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const firstName = typeof req.body.firstName === "string" ? req.body.firstName.trim() : "";
+    const lastName = typeof req.body.lastName === "string" ? req.body.lastName.trim() : "";
+    const { email, password } = req.body;
+
+    if (!isValidNamePart(firstName) || !isValidNamePart(lastName)) {
+      return res.status(400).json({
+        message: "First and last name can only contain letters, spaces, apostrophes, or hyphens"
+      });
+    }
+
+    if (!isValidPassword(password)) {
+      return res.status(400).json({ message: "Password must be at least 6 characters and include a number" });
+    }
 
     const existingUser = await User.findOne({ email: String(email).toLowerCase() });
 
@@ -268,12 +305,15 @@ app.post("/api/auth/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const name = `${firstName} ${lastName}`;
 
     const userId = generateId();
     const newUser = await User.create({
       id: userId,
       _id: userId,
       name,
+      firstName,
+      lastName,
       email,
       password: hashedPassword,
       role: "customer"
@@ -285,6 +325,8 @@ app.post("/api/auth/register", async (req, res) => {
         id: newUser.id,
         _id: newUser.id,
         name: newUser.name,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
         email: newUser.email,
         role: newUser.role
       }
@@ -317,6 +359,8 @@ app.post("/api/auth/login", async (req, res) => {
         id: user.id,
         _id: user.id,
         name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         role: user.role
       }
@@ -406,10 +450,19 @@ app.post("/api/orders", protect, async (req, res) => {
       return res.status(403).json({ message: "Admin accounts cannot place customer orders" });
     }
 
-    const { items, address, paymentMethod } = req.body;
+    const { items, paymentMethod } = req.body;
+    const streetName = typeof req.body.streetName === "string" ? req.body.streetName.trim() : "";
+    const apartmentNumber = typeof req.body.apartmentNumber === "string" ? req.body.apartmentNumber.trim() : "";
+    const contactPhone = typeof req.body.contactPhone === "string" ? req.body.contactPhone.trim() : "";
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No order items" });
+    }
+
+    if (!streetName || !apartmentNumber || !isValidContactPhone(contactPhone)) {
+      return res.status(400).json({
+        message: "Street name, apartment number, and a valid contact phone are required"
+      });
     }
 
     const checkedItems = [];
@@ -453,7 +506,10 @@ app.post("/api/orders", protect, async (req, res) => {
       totalPrice: checkedItems.reduce((total, item) => {
         return total + item.orderItem.price * item.orderItem.quantity;
       }, 0),
-      address,
+      address: formatAddress(streetName, apartmentNumber),
+      streetName,
+      apartmentNumber,
+      contactPhone,
       paymentMethod,
       status: "Confirmed",
       createdAt: new Date()

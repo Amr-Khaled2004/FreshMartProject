@@ -24,7 +24,11 @@
     <form id="checkoutForm" class="form-box">
       <h2>Checkout</h2>
 
-      <textarea id="address" placeholder="Delivery Address" required></textarea>
+      <input type="text" id="streetName" placeholder="Street Name" autocomplete="street-address" required />
+      <div class="card-row">
+        <input type="text" id="apartmentNumber" placeholder="Apartment Number" required />
+        <input type="tel" id="contactPhone" placeholder="Contact Phone" autocomplete="tel" required />
+      </div>
 
       <select id="paymentMethod" required>
         <option value="Cash on Delivery">Cash on Delivery</option>
