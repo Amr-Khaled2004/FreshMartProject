@@ -2,9 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!protectAdminPage()) return;
 
   const productForm = document.getElementById("productForm");
+  const productCategory = document.getElementById("productCategory");
 
   if (productForm) {
     productForm.addEventListener("submit", addProduct);
+  }
+
+  if (productCategory) {
+    productCategory.addEventListener("change", updateProductUnitInputs);
+    updateProductUnitInputs();
   }
 
   loadAdminProducts();
@@ -27,10 +33,11 @@ async function addProduct(event) {
   event.preventDefault();
 
   const token = getToken();
+  const category = document.getElementById("productCategory").value;
 
   const product = {
     name: document.getElementById("productName").value,
-    category: document.getElementById("productCategory").value,
+    category,
     price: Number(document.getElementById("productPrice").value),
     stock: Number(document.getElementById("productStock").value),
     image: document.getElementById("productImage").value,
@@ -57,10 +64,28 @@ async function addProduct(event) {
     showMessage("adminMessage", "Product added successfully.", "success");
 
     document.getElementById("productForm").reset();
+    updateProductUnitInputs();
     loadAdminProducts();
 
   } catch (error) {
     showMessage("adminMessage", "Server error. Try again later.", "error");
+  }
+}
+
+function updateProductUnitInputs() {
+  const categoryInput = document.getElementById("productCategory");
+  const priceInput = document.getElementById("productPrice");
+  const stockInput = document.getElementById("productStock");
+  const category = categoryInput ? categoryInput.value : "";
+  const isKilo = isKiloCategory(category);
+
+  if (priceInput) {
+    priceInput.placeholder = isKilo ? "Price per kg" : "Price";
+  }
+
+  if (stockInput) {
+    stockInput.placeholder = isKilo ? "Stock in kg" : "Stock Quantity";
+    stockInput.step = isKilo ? "0.1" : "1";
   }
 }
 
@@ -87,15 +112,16 @@ async function loadAdminProducts() {
         <div>
           <h4>${product.name}</h4>
           <p>Category: ${product.category}</p>
-          <p>Price: EGP ${product.price}</p>
-          <p>Stock: <strong id="product-stock-${product._id}">${product.stock}</strong></p>
+          <p>Price: ${formatPrice(product.price, product)}</p>
+          <p>Stock: <strong id="product-stock-${product._id}">${formatQuantity(product.stock, product)}</strong></p>
         </div>
 
         <div class="admin-product-actions">
           <input
             type="number"
             id="stock-change-${product._id}"
-            min="1"
+            min="${isKiloCategory(product.category) ? "0.1" : "1"}"
+            step="${isKiloCategory(product.category) ? "0.1" : "1"}"
             value="1"
             aria-label="Stock amount for ${product.name}"
           />
@@ -143,8 +169,8 @@ async function changeProductStock(productId, direction) {
   const amountInput = document.getElementById(`stock-change-${productId}`);
   const amount = Number(amountInput ? amountInput.value : 1);
 
-  if (!Number.isInteger(amount) || amount <= 0) {
-    showAdminToast("Enter a whole stock amount greater than zero.", "error");
+  if (!Number.isFinite(amount) || amount <= 0) {
+    showAdminToast("Enter a stock amount greater than zero.", "error");
     return;
   }
 
@@ -168,10 +194,10 @@ async function changeProductStock(productId, direction) {
     const stockElement = document.getElementById(`product-stock-${productId}`);
 
     if (stockElement) {
-      stockElement.textContent = data.stock;
+      stockElement.textContent = formatQuantity(data.stock, data);
     }
 
-    showAdminToast(`Stock updated to ${data.stock}.`, "success");
+    showAdminToast(`Stock updated to ${formatQuantity(data.stock, data)}.`, "success");
 
   } catch (error) {
     showAdminToast("Server error. Try again later.", "error");
@@ -235,8 +261,8 @@ async function loadAdminOrders() {
           ${order.items.map(item => `
             <li>
               ${item.product && item.product.name ? item.product.name : "Product"} -
-              Quantity: ${item.quantity} -
-              Price: EGP ${item.price}
+              Quantity: ${formatQuantity(item.quantity, item.product)} -
+              Price: ${formatPrice(item.price, item.product)}
             </li>
           `).join("")}
         </ul>

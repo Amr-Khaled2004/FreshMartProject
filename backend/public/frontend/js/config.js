@@ -1,4 +1,23 @@
 const API_BASE_URL = "/api";
+const PRODUCT_CATEGORIES = ["Fruits", "Vegetables", "Dairy", "Bakery", "Drinks", "Snacks", "Meat", "Cleaning"];
+const KILO_CATEGORIES = ["Fruits", "Vegetables"];
+
+function isKiloCategory(category) {
+  return KILO_CATEGORIES.includes(category);
+}
+
+function getProductUnit(product) {
+  return isKiloCategory(product && product.category) ? "kg" : "item(s)";
+}
+
+function formatQuantity(value, product) {
+  return `${Number(value)} ${getProductUnit(product)}`;
+}
+
+function formatPrice(value, product) {
+  const unit = isKiloCategory(product && product.category) ? " / kg" : "";
+  return `EGP ${Number(value)}${unit}`;
+}
 
 function getToken() {
   return localStorage.getItem("token");

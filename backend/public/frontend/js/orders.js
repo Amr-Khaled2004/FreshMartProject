@@ -60,8 +60,8 @@ async function loadMyOrders() {
           ${order.items.map(item => `
             <li>
               ${item.product && item.product.name ? item.product.name : "Product"} -
-              Quantity: ${item.quantity} -
-              Price: EGP ${item.price}
+              Quantity: ${formatQuantity(item.quantity, item.product)} -
+              Price: ${formatPrice(item.price, item.product)}
             </li>
           `).join("")}
         </ul>

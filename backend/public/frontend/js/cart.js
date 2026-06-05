@@ -28,7 +28,7 @@ function addToCart(product) {
 
   if (existingProduct) {
     if (Number(existingProduct.quantity) >= Number(product.stock)) {
-      showUserToast(`Maximum stock reached: only ${product.stock} ${product.name} item(s) available.`, "error");
+      showUserToast(`Maximum stock reached: only ${formatQuantity(product.stock, product)} of ${product.name} available.`, "error");
       return;
     }
 
@@ -37,6 +37,7 @@ function addToCart(product) {
     cart.push({
       productId,
       name: product.name,
+      category: product.category,
       price: product.price,
       image: product.image,
       stock: product.stock,
@@ -64,7 +65,7 @@ function increaseQuantity(productId) {
 
   if (item) {
     if (Number(item.quantity) >= Number(item.stock)) {
-      showUserToast(`Maximum stock reached: only ${item.stock} ${item.name} item(s) available.`, "error");
+      showUserToast(`Maximum stock reached: only ${formatQuantity(item.stock, item)} of ${item.name} available.`, "error");
       return;
     }
 
@@ -152,14 +153,14 @@ function displayCart() {
 
       <div>
         <h3>${item.name}</h3>
-        <p>Price: EGP ${item.price}</p>
-        <p>Available: ${item.stock} item(s)</p>
+        <p>Price: ${formatPrice(item.price, item)}</p>
+        <p>Available: ${formatQuantity(item.stock, item)}</p>
         <p>Subtotal: EGP ${item.price * item.quantity}</p>
       </div>
 
       <div class="cart-controls">
         <button onclick="decreaseQuantity('${item.productId}')">-</button>
-        <span>${item.quantity}</span>
+        <span>${formatQuantity(item.quantity, item)}</span>
         <button onclick="increaseQuantity('${item.productId}')">+</button>
         <button onclick="removeFromCart('${item.productId}')">Remove</button>
       </div>

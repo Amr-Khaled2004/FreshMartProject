@@ -64,8 +64,8 @@ function displayProducts(productList) {
       <h3>${product.name}</h3>
       <p>${product.description || ""}</p>
       <p><strong>Category:</strong> ${product.category}</p>
-      <p><strong>Price:</strong> ${product.price} EGP</p>
-      <p><strong>Stock:</strong> ${product.stock}</p>
+      <p><strong>Price:</strong> ${formatPrice(product.price, product)}</p>
+      <p><strong>Stock:</strong> ${formatQuantity(product.stock, product)}</p>
       <button onclick="addToCart('${productId}', this)" class="btn" ${isOutOfStock ? "disabled" : ""}>
         ${isOutOfStock ? "Out of Stock" : "Add to Cart"}
       </button>
@@ -132,7 +132,7 @@ function addToCart(productId, button) {
 
   if (existingItem) {
     if (Number(existingItem.quantity) >= Number(product.stock)) {
-      showUserToast(`Maximum stock reached: only ${product.stock} ${product.name} item(s) available.`, "error");
+      showUserToast(`Maximum stock reached: only ${formatQuantity(product.stock, product)} of ${product.name} available.`, "error");
       return;
     }
 

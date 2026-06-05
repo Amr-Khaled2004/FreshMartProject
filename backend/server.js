@@ -18,6 +18,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public", "frontend")));
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "simple_supermarket_secret";
+const PRODUCT_CATEGORIES = ["Fruits", "Vegetables", "Dairy", "Bakery", "Drinks", "Snacks", "Meat", "Cleaning"];
+const KILO_CATEGORIES = ["Fruits", "Vegetables"];
 
 function generateId() {
   return Date.now().toString();
@@ -68,6 +70,35 @@ function formatAddress(streetName, apartmentNumber) {
   return `${streetName}, Apt ${apartmentNumber}`;
 }
 
+function isValidProductCategory(category) {
+  return PRODUCT_CATEGORIES.includes(category);
+}
+
+function isKiloCategory(category) {
+  return KILO_CATEGORIES.includes(category);
+}
+
+function getProductUnit(product) {
+  return product && isKiloCategory(product.category) ? "kg" : "item(s)";
+}
+
+function formatQuantity(value, product) {
+  return `${Number(value)} ${getProductUnit(product)}`;
+}
+
+function formatPrice(value, product) {
+  const unit = product && isKiloCategory(product.category) ? " / kg" : "";
+  return `EGP ${Number(value)}${unit}`;
+}
+
+function isValidStockAmount(value, category) {
+  return Number.isFinite(value) && value >= 0 && (isKiloCategory(category) || Number.isInteger(value));
+}
+
+function isValidOrderQuantity(value, product) {
+  return Number.isFinite(value) && value > 0 && (isKiloCategory(product.category) || Number.isInteger(value));
+}
+
 function createMailTransporter() {
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     return null;
@@ -98,8 +129,8 @@ function formatOrderItemsForEmail(checkedItems) {
 
     return {
       name: product.name,
-      quantity: orderItem.quantity,
-      price: orderItem.price,
+      quantity: formatQuantity(orderItem.quantity, product),
+      price: formatPrice(orderItem.price, product),
       subtotal: orderItem.quantity * orderItem.price
     };
   });
@@ -118,7 +149,7 @@ function buildOrderEmail(user, order, checkedItems) {
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #dfe8e2;">${item.name}</td>
       <td style="padding: 10px; border-bottom: 1px solid #dfe8e2; text-align: center;">${item.quantity}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #dfe8e2; text-align: right;">EGP ${item.price}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #dfe8e2; text-align: right;">${item.price}</td>
       <td style="padding: 10px; border-bottom: 1px solid #dfe8e2; text-align: right;">EGP ${item.subtotal}</td>
     </tr>
   `).join("");
@@ -384,14 +415,34 @@ app.get("/api/products", async (req, res) => {
 // Add product - admin only
 app.post("/api/products", protect, adminOnly, async (req, res) => {
   try {
+    const category = typeof req.body.category === "string" ? req.body.category.trim() : "";
+    const price = Number(req.body.price);
+    const stock = Number(req.body.stock);
+
+    if (!isValidProductCategory(category)) {
+      return res.status(400).json({ message: "Choose a valid product category" });
+    }
+
+    if (!Number.isFinite(price) || price < 0) {
+      return res.status(400).json({ message: "Price must be zero or greater" });
+    }
+
+    if (!isValidStockAmount(stock, category)) {
+      return res.status(400).json({
+        message: isKiloCategory(category)
+          ? "Stock in kg must be zero or greater"
+          : "Stock quantity must be a whole number zero or greater"
+      });
+    }
+
     const productId = generateId();
     const newProduct = await Product.create({
       id: productId,
       _id: productId,
       name: req.body.name,
-      category: req.body.category,
-      price: Number(req.body.price),
-      stock: Number(req.body.stock),
+      category,
+      price,
+      stock,
       image: req.body.image,
       description: req.body.description || ""
     });
@@ -425,8 +476,12 @@ app.patch("/api/products/:id/stock", protect, adminOnly, async (req, res) => {
     const change = Number(req.body.change || 0);
     const nextStock = Number(product.stock) + change;
 
-    if (!Number.isInteger(change) || change === 0) {
-      return res.status(400).json({ message: "Stock change must be a non-zero whole number" });
+    if (!Number.isFinite(change) || change === 0 || (!isKiloCategory(product.category) && !Number.isInteger(change))) {
+      return res.status(400).json({
+        message: isKiloCategory(product.category)
+          ? "Stock change must be a non-zero kg amount"
+          : "Stock change must be a non-zero whole number"
+      });
     }
 
     if (nextStock < 0) {
@@ -476,13 +531,17 @@ app.post("/api/orders", protect, async (req, res) => {
         return res.status(404).json({ message: "One of the products was not found" });
       }
 
-      if (!Number.isInteger(quantity) || quantity <= 0) {
-        return res.status(400).json({ message: "Invalid product quantity" });
+      if (!isValidOrderQuantity(quantity, product)) {
+        return res.status(400).json({
+          message: isKiloCategory(product.category)
+            ? `Invalid kg quantity for ${product.name}`
+            : "Invalid product quantity"
+        });
       }
 
       if (Number(product.stock) < quantity) {
         return res.status(400).json({
-          message: `Only ${product.stock} item(s) left for ${product.name}`
+          message: `Only ${formatQuantity(product.stock, product)} left for ${product.name}`
         });
       }
 
